@@ -1,7 +1,7 @@
 import { FaRegUserCircle } from "react-icons/fa";
 import { FiLink } from "react-icons/fi";
 import { IoEyeOutline } from "react-icons/io5";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 export const Navbar = () => {
   const navList = (
@@ -29,7 +29,7 @@ export const Navbar = () => {
     </>
   );
   return (
-    <div className="flex justify-between items-center bg-white py-4 px-6 rounded-lg mb-6">
+    <nav className="flex justify-between items-center bg-white py-4 px-6 rounded-lg mb-6">
       <div className="">
         <h3 className="flex items-center gap-3 text-3xl font-bold text-secondary">
           <span
@@ -50,9 +50,11 @@ export const Navbar = () => {
         className="py-2.5
          px-6 rounded-lg border border-primary text-primary text-xl font-semibold"
       >
-        <span className="hidden lg:flex">Preview</span>
-        <IoEyeOutline className="flex lg:hidden" />
+        <Link to={"/preview/123"}>
+          <span className="hidden lg:flex">Preview</span>
+          <IoEyeOutline className="flex lg:hidden" />
+        </Link>
       </button>
-    </div>
+    </nav>
   );
 };

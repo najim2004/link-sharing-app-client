@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { App } from "../App";
 import { Home } from "../pages/home/Home";
 import { Profile } from "../pages/profile/Profile";
+import { Preview } from "../pages/preview/Preview";
 
 const router = createBrowserRouter([
   {
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
       {
         path: "/profile/:id",
         element: <Profile />,
+      },
+      {
+        path: "/preview/:id",
+        element: <Preview />,
       },
     ],
   },
