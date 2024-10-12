@@ -1,18 +1,30 @@
-import { useState } from "react";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
+import { FaSpinner } from "react-icons/fa";
 import { LuFileEdit } from "react-icons/lu";
 
-export const DetailsUpdateForm = () => {
-  const initialData = {
-    firstName: "Mohammad",
-    lastName: "Najim",
-    bio: "I am a software engineer with 5 years of experience",
-    email: "najim@gmail.com",
-  };
+const getChangedProperties = (originalObj, updatedObj) =>
+  Object.entries(updatedObj).reduce((changes, [key, value]) => {
+    if (originalObj[key] !== value) {
+      changes[key] = value; // Capture the updated value
+    }
+    return changes;
+  }, {});
 
-  const [isEdit, setIsEdit] = useState(false);
-  const [formData, setFormData] = useState(initialData);
+export const DetailsUpdateForm = ({
+  userDetails,
+  isEdit,
+  setIsEdit,
+  handleUpdate,
+  isLoading,
+}) => {
+  const [formData, setFormData] = useState(userDetails);
 
-  // Handle input changes
+  // Update formData when userDetails changes
+  useEffect(() => {
+    setFormData(userDetails);
+  }, [userDetails]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -21,17 +33,15 @@ export const DetailsUpdateForm = () => {
     }));
   };
 
-  // Handle form reset when "Cancel" is clicked
-  const handleCancel = () => {
-    setFormData(initialData); // Reset form to default values
-    setIsEdit(false); // Exit edit mode
-  };
-
-  // Handle form submission (optional)
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Form submitted with: " + JSON.stringify(formData));
-    setIsEdit(false); // Optionally, exit edit mode after saving
+    const changedProperties = getChangedProperties(userDetails, formData);
+    handleUpdate(changedProperties);
+  };
+
+  const handleCancel = () => {
+    setIsEdit(false); // Set edit mode off
+    setFormData(userDetails); // Roll back to original user details
   };
 
   return (
@@ -49,41 +59,41 @@ export const DetailsUpdateForm = () => {
         onSubmit={handleSubmit}
       >
         <div className="w-full flex flex-col gap-4">
-          <div className="w-full flex items-center gap-40">
+          <div className="w-full flex flex-col lg:flex-row lg:items-center lg:gap-40">
             <label
-              htmlFor="fullName"
+              htmlFor="firstName"
               className="text-lg text-secondary/70 w-[170px]"
             >
-              First name*
+              First name{isEdit && <span>*</span>}
             </label>
             <input
               type="text"
-              name="fullName"
+              name="firstName"
               required
               disabled={!isEdit}
-              className="p-2.5 bg-white rounded-md outline-none focus:outline-primary outline-secondary/40 flex-grow"
-              value={formData.firstName}
+              className="p-2.5 bg-white rounded-md outline-none focus:outline-primary outline-secondary/40 flex-grow w-full"
+              value={formData.firstName || ""}
               onChange={handleInputChange}
             />
           </div>
-          <div className="w-full flex items-center gap-40">
+          <div className="w-full flex flex-col lg:flex-row lg:items-center lg:gap-40">
             <label
-              htmlFor="fullName"
+              htmlFor="lastName"
               className="text-lg text-secondary/70 w-[170px]"
             >
-              Last name*
+              Last name{isEdit && <span>*</span>}
             </label>
             <input
               type="text"
-              name="fullName"
+              name="lastName"
               required
               disabled={!isEdit}
-              className="p-2.5 bg-white rounded-md outline-none focus:outline-primary outline-secondary/40 flex-grow"
-              value={formData.lastName}
+              className="p-2.5 bg-white rounded-md outline-none focus:outline-primary outline-secondary/40 flex-grow w-full"
+              value={formData.lastName || ""}
               onChange={handleInputChange}
             />
           </div>
-          <div className="w-full flex items-center gap-40">
+          <div className="w-full flex flex-col lg:flex-row lg:items-center lg:gap-40">
             <label
               htmlFor="email"
               className="text-lg text-secondary/70 w-[170px]"
@@ -94,13 +104,13 @@ export const DetailsUpdateForm = () => {
               type="email"
               name="email"
               required
-              disabled={!isEdit}
-              className="p-2.5 bg-white rounded-md outline-none focus:outline-primary outline-secondary/40 flex-grow"
-              value={formData.email}
+              disabled
+              className="p-2.5 bg-white rounded-md outline-none focus:outline-primary outline-secondary/40 flex-grow w-full"
+              value={formData.email || ""}
               onChange={handleInputChange}
             />
           </div>
-          <div className="w-full flex items-center gap-40">
+          <div className="w-full flex flex-col lg:flex-row lg:items-center lg:gap-40">
             <label
               htmlFor="bio"
               className="text-lg text-secondary/70 w-[170px]"
@@ -111,8 +121,8 @@ export const DetailsUpdateForm = () => {
               name="bio"
               maxLength={100}
               disabled={!isEdit}
-              className="p-2.5 bg-white rounded-md outline-none focus:outline-primary outline-secondary/40 flex-grow min-h-[80px]"
-              value={formData.bio}
+              className="p-2.5 bg-white rounded-md outline-none focus:outline-primary outline-secondary/40 flex-grow min-h-[80px] w-full"
+              value={formData.bio || ""}
               onChange={handleInputChange}
             />
           </div>
@@ -122,20 +132,34 @@ export const DetailsUpdateForm = () => {
           <div className="flex items-center justify-end gap-4">
             <button
               type="button"
+              disabled={isLoading}
               onClick={handleCancel}
               className="px-2 py-1 rounded-md bg-white text-primary border border-primary"
             >
               Cancel
             </button>
             <button
+              disabled={isLoading}
               type="submit"
               className="px-2 py-1 rounded-md bg-primary text-white font-semibold"
             >
-              Update
+              {isLoading ? (
+                <FaSpinner className="animate-spin text-2xl" />
+              ) : (
+                "Update"
+              )}
             </button>
           </div>
         )}
       </form>
     </div>
   );
+};
+
+DetailsUpdateForm.propTypes = {
+  userDetails: PropTypes.object,
+  isEdit: PropTypes.bool,
+  setIsEdit: PropTypes.func,
+  handleUpdate: PropTypes.func,
+  isLoading: PropTypes.bool,
 };

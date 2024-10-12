@@ -3,6 +3,9 @@ import { App } from "../App";
 import { Home } from "../pages/home/Home";
 import { Profile } from "../pages/profile/Profile";
 import { Preview } from "../pages/preview/Preview";
+import SignIn from "../pages/signIn/SignIn";
+import SignUp from "../pages/signup/SignUp";
+import { PrivateRoute } from "./PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -10,18 +13,38 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "/",
-        element: <Home />,
+        index: true,
+        element: (
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/profile/:id",
-        element: <Profile />,
+        element: (
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        ),
       },
       {
-        path: "/preview/:id",
-        element: <Preview />,
+        path: "/preview",
+        element: (
+          <PrivateRoute>
+            <Preview />
+          </PrivateRoute>
+        ),
       },
     ],
+  },
+  {
+    path: "/login",
+    element: <SignIn />,
+  },
+  {
+    path: "/signup",
+    element: <SignUp />,
   },
 ]);
 
