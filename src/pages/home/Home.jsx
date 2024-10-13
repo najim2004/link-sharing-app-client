@@ -11,7 +11,6 @@ import { Helmet } from "react-helmet-async";
 const generateRandomColor = (platforms) => {
   let randomColor;
   do {
-    // Generate random hex color
     randomColor = `#${Math.floor(Math.random() * 16777215)
       .toString(16)
       .padStart(6, "0")}`;
@@ -23,8 +22,12 @@ const generateRandomColor = (platforms) => {
   return randomColor;
 };
 
-const platformDataFinder = (platforms, id) => {
-  const findedObject = platforms.find((platform) => platform._id === id);
+const platformDataFinder = (platforms, name) => {
+  const findedObject = platforms.find(
+    (platform) =>
+      platform.name.replace(/\s+/g, "").toLowerCase() ===
+      name.replace(/\s+/g, "").toLowerCase()
+  );
   return {
     name: findedObject?.name,
     bgColor: findedObject?.bgColor,
@@ -65,10 +68,16 @@ export const Home = () => {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
     setIsLoading(true);
     let platform = {};
-    const findedPlatform = platformDataFinder(platforms, data?.platform);
+    const findedPlatform = platformDataFinder(
+      platforms,
+      data.name
+        ? data.platform == "Website"
+          ? data.name
+          : data.platform
+        : data.platform
+    );
     findedPlatform.bgColor
       ? (platform = { ...findedPlatform })
       : (platform = {

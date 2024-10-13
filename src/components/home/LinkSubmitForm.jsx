@@ -51,7 +51,7 @@ const LinkSubmitForm = ({ isOpen, onClose, onSubmit, isLoading }) => {
                 {platforms.map((platform) => (
                   <option
                     key={platform._id}
-                    value={platform._id}
+                    value={platform.name}
                     className="text-sm font-semibold"
                   >
                     {platform.name}
