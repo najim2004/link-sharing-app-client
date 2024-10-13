@@ -11,7 +11,7 @@ import { ImCancelCircle } from "react-icons/im";
 import { FaSpinner } from "react-icons/fa";
 
 export const AllAddedLinks = () => {
-  const { myLinks } = useAppContext();
+  const { myLinks, myLinksLoading } = useAppContext();
   const [isEdit, setIsEdit] = useState(false);
   const [updatableData, setUpdatableData] = useState([]);
   const [updateFailedIds, setUpdateFailedIds] = useState([]);
@@ -34,7 +34,7 @@ export const AllAddedLinks = () => {
     onSuccess: (data) => {
       if (data.success) {
         toast.success("Link removed successfully!");
-        queryClient.invalidateQueries(["myLinks"]);
+        queryClient.refetchQueries(["myLinks"]);
         setIsModalOpen(false);
         setLinkId(null);
       } else {
@@ -59,13 +59,13 @@ export const AllAddedLinks = () => {
     onSuccess: (data) => {
       if (data.success) {
         toast.success("Link updated successfully!");
-        queryClient.invalidateQueries(["myLinks"]);
+        queryClient.refetchQueries(["myLinks"]);
         setUpdatableData([]);
         setIsEdit(false);
       } else {
         toast.error(data.message || "Failed to update link.");
         if (data?.failedIds?.length > 0) {
-          queryClient.invalidateQueries(["myLinks"]);
+          queryClient.refetchQueries(["myLinks"]);
           setUpdatableData([]);
           setUpdateFailedIds(data.failedIds);
         }
@@ -104,6 +104,7 @@ export const AllAddedLinks = () => {
   };
 
   const onUpdateConfirmed = () => {
+    if (updatableData.length === 0) return toast.error("No changes were made");
     updateMutation.mutate();
     setIsLoading(true);
   };
@@ -122,8 +123,14 @@ export const AllAddedLinks = () => {
         </button>
       )}
 
+      {myLinksLoading && (
+        <div className="w-full flex items-center justify-center text-primary">
+          <FaSpinner className="animate-spin text-2xl" />
+        </div>
+      )}
       {myLinks?.map((link) => (
         <SingleLink
+          className=""
           key={link._id}
           isEdit={isEdit}
           isLoading={isLoading}

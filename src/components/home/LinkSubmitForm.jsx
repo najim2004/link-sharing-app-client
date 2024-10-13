@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { useAppContext } from "../../provider/AppProvider";
@@ -7,6 +7,7 @@ import { FaSpinner } from "react-icons/fa";
 
 const LinkSubmitForm = ({ isOpen, onClose, onSubmit, isLoading }) => {
   const { platforms } = useAppContext();
+  const [selectedPlatform, setSelectedPlatform] = useState();
   const {
     register,
     handleSubmit,
@@ -17,7 +18,6 @@ const LinkSubmitForm = ({ isOpen, onClose, onSubmit, isLoading }) => {
     if (!isOpen) reset();
   }, [isOpen, reset]);
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-8 rounded-lg w-96">
@@ -39,6 +39,7 @@ const LinkSubmitForm = ({ isOpen, onClose, onSubmit, isLoading }) => {
               <select
                 {...register("platform", { required: "Platform is required" })}
                 className="w-full py-3 border border-gray-400 rounded-lg text-secondary px-5 outline-none bg-white mt-1 appearance-none"
+                onChange={(e) => setSelectedPlatform(e.target.value)}
               >
                 <option value="">Select platform</option>
                 <option className="text-sm font-semibold" value="Website">
@@ -65,6 +66,24 @@ const LinkSubmitForm = ({ isOpen, onClose, onSubmit, isLoading }) => {
             </div>
           </div>
 
+          {selectedPlatform === "Website" && (
+            <div className="mt-3">
+              <label>Platform Name</label>
+              <input
+                type="text"
+                {...register("name", {
+                  required: "platform name is required",
+                })}
+                className="w-full py-3 border border-gray-400 rounded-lg text-secondary px-5 outline-none bg-white mt-1"
+                placeholder="Your platform name"
+              />
+              {errors.name && (
+                <span className="text-red-500 text-sm">
+                  {errors.name.message}
+                </span>
+              )}
+            </div>
+          )}
           <div className="mt-3">
             <label>Link</label>
             <input

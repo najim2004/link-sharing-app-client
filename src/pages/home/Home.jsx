@@ -50,7 +50,7 @@ export const Home = () => {
     onSuccess: (data) => {
       if (data.success) {
         toast.success("Link added successfully!");
-        queryClient.invalidateQueries(["myLinks"]);
+        queryClient.refetchQueries(["myLinks"]);
         onClose();
       } else {
         toast.error(data.message || "Failed to add link.");
@@ -71,7 +71,7 @@ export const Home = () => {
     findedPlatform.bgColor
       ? (platform = { ...findedPlatform })
       : (platform = {
-          name: data.platform,
+          name: data.platform === "website" ? data.name : data.platform,
           bgColor: generateRandomColor(platforms),
         });
     const mutatedData = { platform, url: data?.link };

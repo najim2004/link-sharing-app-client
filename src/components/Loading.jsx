@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { FiLink } from "react-icons/fi";
 
 export const Loading = () => {
   const [isTimeout, setIsTimeout] = useState(false);
-  setTimeout(() => {
-    setIsTimeout(true);
-  }, 400);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setIsTimeout(true);
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, []);
   return (
     <div className="fixed top-0 left-0 h-screen w-screen bg-white z-50 flex flex-col justify-center items-center gap-3">
       <h3 className="flex items-center gap-3 text-4xl font-bold text-secondary">

@@ -1,9 +1,10 @@
 import PropTypes from "prop-types";
 import { useAppContext } from "../../provider/AppProvider";
 import { Link } from "react-router-dom";
+import { FaSpinner } from "react-icons/fa";
 
 export const Phone = ({ myLinks }) => {
-  const { user } = useAppContext();
+  const { user, myLinksLoading } = useAppContext();
   return (
     <div className="h-[680px] w-[370px] border border-secondary/60 rounded-[50px] p-4 bg-white relative">
       <div className="h-full border border-secondary/60 rounded-[40px] w-full overflow-hidden">
@@ -39,6 +40,11 @@ export const Phone = ({ myLinks }) => {
                 {link?.platform.name}
               </Link>
             ))}
+            {myLinksLoading && (
+              <div className="w-full flex items-center justify-center text-primary">
+                <FaSpinner className="animate-spin text-2xl" />
+              </div>
+            )}
             {myLinks?.length < 1 && (
               <button className="w-full py-3 mt-16 border border-primary rounded-lg text-primary font-semibold">
                 Please add a link

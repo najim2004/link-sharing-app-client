@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { Navbar } from "../../shared/Navbar";
 import { useMutation } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useAppContext } from "../../provider/AppProvider";
 import { Loading } from "../../components/Loading";
@@ -65,7 +65,9 @@ const SignIn = () => {
       <Navbar />
       <div className="flex flex-col items-center justify-center p-4 w-full flex-grow">
         <div className="space-y-2">
-          <h3 className="text-3xl font-bold">Sign In Your Account</h3>
+          <h3 className="text-3xl font-bold text-secondary">
+            Login In Your Account
+          </h3>
           <p className="text-sm text-gray-500 font-medium text-center">
             Welcome Back! Please enter your details
           </p>
@@ -73,7 +75,7 @@ const SignIn = () => {
 
         <button
           onClick={() => alert("adding soon..")}
-          className="mt-3 shadow-sm bg-transparent outline-none border border-gray-300 text-gray-500 text-base font-semibold rounded-sm w-full max-w-[350px] p-2 flex items-center gap-2 justify-center"
+          className="mt-3 shadow-sm bg-transparent outline-none border border-gray-300 text-gray-500 text-base font-semibold rounded-md w-full max-w-[350px] p-2 flex items-center gap-2 justify-center"
         >
           <FcGoogle className="text-lg" /> Login with Google
         </button>
@@ -90,7 +92,7 @@ const SignIn = () => {
             <div className="mb-2">
               <label
                 htmlFor="email"
-                className="block mb-1 text-base font-semibold text-gray-900"
+                className="block mb-1 text-base font-semibold text-secondary"
               >
                 Your Email
               </label>
@@ -105,7 +107,7 @@ const SignIn = () => {
                   },
                 })}
                 placeholder="yourname@gmail.com"
-                className="shadow-sm bg-transparent outline-none border border-gray-300 text-gray-900 text-sm rounded-sm block w-full p-2.5"
+                className="shadow-sm bg-transparent outline-none border border-gray-300 text-secondary text-sm rounded-md block w-full p-2.5"
               />
               {errors?.email && (
                 <span className="text-red-600 font-medium">
@@ -117,7 +119,7 @@ const SignIn = () => {
             <div className="relative mb-2">
               <label
                 htmlFor="password"
-                className="block mb-1 text-base font-semibold text-gray-900"
+                className="block mb-1 text-base font-semibold text-secondary"
               >
                 Your Password
               </label>
@@ -127,12 +129,12 @@ const SignIn = () => {
                 {...register("password", {
                   required: "Your password is required",
                 })}
-                className="shadow-sm bg-transparent outline-none border border-gray-300 text-gray-900 text-sm rounded-sm block w-full p-2.5"
+                className="shadow-sm bg-transparent outline-none border border-gray-300 text-secondary text-sm rounded-md block w-full p-2.5"
                 placeholder="Enter password"
               />
               <span
                 onClick={togglePasswordView}
-                className="absolute right-2 top-10"
+                className="absolute right-2 top-10 text-secondary"
               >
                 {viewPassword ? (
                   <FaRegEye className="cursor-pointer" />
@@ -150,7 +152,7 @@ const SignIn = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full text-white bg-primary hover:bg-primary/90 border focus:ring-4 focus:outline-none font-medium rounded-sm text-sm px-5 py-2.5 text-center me-2 mb-2 flex justify-center items-center"
+              className="w-full text-white bg-primary hover:bg-primary/90 border focus:ring-4 focus:outline-none font-medium rounded-md text-sm px-5 py-2.5 text-center me-2 mb-2 flex justify-center items-center"
             >
               {isLoading ? (
                 <FaSpinner className="animate-spin text-2xl" />
@@ -171,6 +173,7 @@ const SignIn = () => {
           <p className="text-red-500 font-semibold my-1">{anyError}</p>
         )}
       </div>
+      <Toaster />
     </div>
   );
 };
