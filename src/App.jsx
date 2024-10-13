@@ -65,7 +65,7 @@ export const App = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <Navbar />
-      <div className="flex gap-6 w-full *:flex-1 h-full lg:h-[calc(100vh-154px)]">
+      <div className="flex gap-6 w-full *:flex-1 min-h-[calc(100vh-154px)] h-full lg:h-[calc(100vh-154px)]">
         {!isPreview && !isAuth && user && <PhonePreview />}
         <Outlet />
       </div>

@@ -1,7 +1,8 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { BsThreeDots } from "react-icons/bs";
 import { FaSpinner } from "react-icons/fa";
-import { LuFileEdit } from "react-icons/lu";
 
 const getChangedProperties = (originalObj, updatedObj) =>
   Object.entries(updatedObj).reduce((changes, [key, value]) => {
@@ -35,13 +36,14 @@ export const DetailsUpdateForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (userDetails === formData) return toast.error("No changes were made!");
     const changedProperties = getChangedProperties(userDetails, formData);
     handleUpdate(changedProperties);
   };
 
   const handleCancel = () => {
-    setIsEdit(false); // Set edit mode off
-    setFormData(userDetails); // Roll back to original user details
+    setIsEdit(false);
+    setFormData(userDetails);
   };
 
   return (
@@ -49,9 +51,9 @@ export const DetailsUpdateForm = ({
       {!isEdit && (
         <button
           onClick={() => setIsEdit(true)}
-          className="absolute top-0 right-0 text-lg text-primary"
+          className="absolute top-0 right-0 text-2xl text-primary"
         >
-          <LuFileEdit />
+          <BsThreeDots />
         </button>
       )}
       <form

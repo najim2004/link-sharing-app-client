@@ -34,9 +34,8 @@ export const Template = ({ myLinks, user }) => {
             ))}
           </div>
           {myLinks?.length < 1 && (
-            <h3 className="w-full flex flex-col justify-center items-center mt-16 text-2xl text-center text-primary font-semibold">
-              404 <br />
-              No Links Found!
+            <h3 className="w-full flex flex-col justify-center items-center mt-16 text-2xl text-center text-red-500 font-semibold">
+              Empty!
             </h3>
           )}
         </section>

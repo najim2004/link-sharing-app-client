@@ -111,7 +111,7 @@ export const AllAddedLinks = () => {
 
   return (
     <section className={`mt-8 flex flex-col gap-5 ${isEdit ? "mb-16" : ""}`}>
-      {!isEdit && (
+      {!isEdit && myLinks.length > 0 && (
         <button
           onClick={() => {
             setIsEdit(true);
@@ -142,6 +142,14 @@ export const AllAddedLinks = () => {
           }
         />
       ))}
+
+      {myLinks.length <= 0 && (
+        <div className="w-full flex justify-center items-center my-40">
+          <h3 className="text-2xl font-semibold text-red-500 text-center leading-[40px]">
+            Empty!
+          </h3>
+        </div>
+      )}
       <DeleteModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
