@@ -24,7 +24,6 @@ const generateRandomColor = (platforms) => {
 };
 
 const platformDataFinder = (platforms, id) => {
-  console.log();
   const findedObject = platforms.find((platform) => platform._id === id);
   return {
     name: findedObject?.name,
@@ -66,13 +65,14 @@ export const Home = () => {
   });
 
   const onSubmit = (data) => {
+    console.log(data);
     setIsLoading(true);
     let platform = {};
     const findedPlatform = platformDataFinder(platforms, data?.platform);
     findedPlatform.bgColor
       ? (platform = { ...findedPlatform })
       : (platform = {
-          name: data.platform === "website" ? data.name : data.platform,
+          name: data.name ? data.name : data.platform,
           bgColor: generateRandomColor(platforms),
         });
     const mutatedData = { platform, url: data?.link };

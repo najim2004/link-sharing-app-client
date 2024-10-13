@@ -15,7 +15,10 @@ const LinkSubmitForm = ({ isOpen, onClose, onSubmit, isLoading }) => {
     formState: { errors },
   } = useForm();
   useEffect(() => {
-    if (!isOpen) reset();
+    if (!isOpen) {
+      reset();
+      setSelectedPlatform(null);
+    }
   }, [isOpen, reset]);
   if (!isOpen) return null;
   return (

@@ -89,34 +89,36 @@ export const SingleLink = ({
         </button>
       </div>
       <div className="mt-3">
-        <div className="relative w-full">
-          <label className="">Plartform</label>
-          <select
-            name=""
-            id=""
-            disabled={!isEdit}
-            onChange={onPlatformChange}
-            value={!isNotFinded ? updatedLink?.platform?.name : "Website"}
-            className="w-full py-3 border border-gray-400 rounded-lg text-secondary px-5 outline-none bg-white mt-1 appearance-none"
-          >
-            <option value="Website" disabled={isNotFinded}>
-              Website
-            </option>
-            {platforms.map((platform) => (
-              <option
-                disabled={platform?.name === link?.platform?.name}
-                key={platform._id}
-                value={platform.name}
-              >
-                {platform.name}
+        {((isNotFinded && isEdit) || !isNotFinded) && (
+          <div className="relative w-full">
+            <label className="">Plartform</label>
+            <select
+              name=""
+              id=""
+              disabled={!isEdit}
+              onChange={onPlatformChange}
+              value={!isNotFinded ? updatedLink?.platform?.name : "Website"}
+              className="w-full py-3 border border-gray-400 rounded-lg text-secondary px-5 outline-none bg-white mt-1 appearance-none"
+            >
+              <option value="Website" disabled={isNotFinded}>
+                Website
               </option>
-            ))}
-          </select>
-          <span className="absolute bottom-3 right-5 text-2xl text-secondary">
-            <MdKeyboardArrowDown />
-          </span>
-        </div>
-        {isNotFinded && isEdit && (
+              {platforms.map((platform) => (
+                <option
+                  disabled={platform?.name === link?.platform?.name}
+                  key={platform._id}
+                  value={platform.name}
+                >
+                  {platform.name}
+                </option>
+              ))}
+            </select>
+            <span className="absolute bottom-3 right-5 text-2xl text-secondary">
+              <MdKeyboardArrowDown />
+            </span>
+          </div>
+        )}
+        {isNotFinded && (
           <div className="mt-3">
             <label className="mt-4">Platform Name</label>
             <input
