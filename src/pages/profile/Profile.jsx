@@ -6,6 +6,7 @@ import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import useImageUpload from "../../hooks/useImageUpload";
+import { Helmet } from "react-helmet-async";
 
 export const Profile = () => {
   const { user, setUser } = useAppContext();
@@ -61,6 +62,11 @@ export const Profile = () => {
   };
   return (
     <div className="bg-white py-4 px-6 rounded-lg">
+      <Helmet>
+        <title>{`${
+          user?.firstName + " " + user?.lastName
+        } || Dev Links 24`}</title>
+      </Helmet>
       <section className="mt-3.5">
         <h2 className="text-3xl font-bold text-secondary mb-3.5">
           Profile Details

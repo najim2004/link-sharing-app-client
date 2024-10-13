@@ -21,13 +21,13 @@ export const Loading = () => {
           <FiLink className="rotate-45" />
         </p>
 
-        <div className="overflow-hidden w-40">
+        <div className="overflow-hidden w-42">
           <p
             className={`transition-all ${
               isTimeout ? "translate-x-0" : "-translate-x-full"
             }  duration-700 delay-500`}
           >
-            devlinks
+            devlinks 24
           </p>
         </div>
       </h3>

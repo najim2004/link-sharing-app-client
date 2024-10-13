@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../provider/AppProvider";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import { Helmet } from "react-helmet-async";
 
 const generateRandomColor = (platforms) => {
   let randomColor;
@@ -80,6 +81,9 @@ export const Home = () => {
 
   return (
     <div className="bg-white py-4 pl-6 rounded-lg overflow-hidden relative">
+      <Helmet>
+        <title>Home || Dev Links 24</title>
+      </Helmet>
       <div className="max-h-full overflow-auto pr-6">
         <section className="mt-3.5">
           <h2 className="text-3xl font-bold text-secondary mb-3.5">

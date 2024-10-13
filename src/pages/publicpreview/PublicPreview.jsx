@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Loading } from "../../components/Loading";
 import { useAppContext } from "../../provider/AppProvider";
 import toast from "react-hot-toast";
+import { Helmet } from "react-helmet-async";
 
 export const FetchUserDetailsAndLinks = (id) => {
   const axiosPublic = useAxiosPublic();
@@ -58,6 +59,11 @@ export const PublicPreview = () => {
   if (loading) return <Loading />;
   return (
     <>
+      <Helmet>
+        <title>{`${
+          user?.firstName + " " + user?.lastName
+        } || Dev Links 24`}</title>
+      </Helmet>
       <Template myLinks={userLinks} user={user} />
     </>
   );

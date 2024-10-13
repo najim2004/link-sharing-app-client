@@ -75,7 +75,7 @@ export const Navbar = () => {
           >
             <FiLink className=" rotate-45" />
           </span>
-          <span className="hidden md:flex">devlinks</span>
+          <span className="hidden md:flex">devlinks 24</span>
         </Link>
       </div>
       {!isPreview && (

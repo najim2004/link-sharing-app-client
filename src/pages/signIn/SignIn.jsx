@@ -9,6 +9,7 @@ import toast, { Toaster } from "react-hot-toast";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useAppContext } from "../../provider/AppProvider";
 import { Loading } from "../../components/Loading";
+import { Helmet } from "react-helmet-async";
 
 const SignIn = () => {
   const { isRefetch, setIsRefetch, user, isUserLoading } = useAppContext();
@@ -62,6 +63,9 @@ const SignIn = () => {
 
   return (
     <div className="bg-white w-screen h-screen absolute top-0 left-0 flex flex-col">
+      <Helmet>
+        <title>Login || Dev Links 24</title>
+      </Helmet>
       <Navbar />
       <div className="flex flex-col items-center justify-center p-4 w-full flex-grow">
         <div className="space-y-2">
