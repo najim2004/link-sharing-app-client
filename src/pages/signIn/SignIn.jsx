@@ -1,5 +1,5 @@
 import { FaRegEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
@@ -11,7 +11,7 @@ import { useAppContext } from "../../provider/AppProvider";
 import { Loading } from "../../components/Loading";
 
 const SignIn = () => {
-  const { setIsLogin, isLogin, user, isUserLoading } = useAppContext();
+  const { isRefetch, setIsRefetch, user, isUserLoading } = useAppContext();
   const [viewPassword, setViewPassword] = useState(false);
   const axiosSecure = useAxiosSecure();
   const [anyError, setAnyError] = useState(null);
@@ -30,7 +30,7 @@ const SignIn = () => {
     onSuccess: (data) => {
       if (data.success) {
         toast.success("Loged In successful!");
-        setIsLogin(!isLogin);
+        setIsRefetch(!isRefetch);
         setAnyError(null);
       } else {
         toast.error(data.message || "Failed to login try again!");

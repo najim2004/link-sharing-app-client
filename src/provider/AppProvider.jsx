@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import { createContext, useContext, useEffect, useState } from "react";
-import useAxiosSecure from "../hooks/useAxiosSecure";
+import { createContext, useContext, useState } from "react";
 import toast from "react-hot-toast";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 
 const AppContext = createContext();
 
@@ -11,36 +11,19 @@ export const useAppContext = () => {
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLogin, setIsLogin] = useState(true);
+  const [isRefetch, setIsRefetch] = useState(true);
   const [isUserLoading, setIsUserLoading] = useState(true);
   const [platforms, setPlatforms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [myLinksLoading, setMyLinksLoading] = useState(true);
   const [myLinks, setMyLinks] = useState([]);
-  const axiosSecure = useAxiosSecure();
-
-  useEffect(() => {
-    const getuser = async () => {
-      setIsUserLoading(true);
-      try {
-        const { data } = await axiosSecure.get(`/api/users`);
-        data.success ? setUser(data.user) : setUser(null);
-      } catch (error) {
-        // console.log(error);
-      } finally {
-        setIsUserLoading(false);
-      }
-    };
-    getuser();
-  }, [axiosSecure, isLogin]);
-
-  // useEffect(() => {}, [user, links]);
+  const axiosPublic = useAxiosPublic();
 
   const logout = async () => {
     setIsUserLoading(true);
     try {
-      const { data } = await axiosSecure.post("/api/users/logout");
-      if (data.success) {
+      const { data } = await axiosPublic.post("/api/users/logout");
+      if (data?.success) {
         setUser(null);
         setMyLinks(null);
         toast.success(data.message);
@@ -54,6 +37,9 @@ export const AppProvider = ({ children }) => {
   };
 
   const contextData = {
+    user,
+    setUser,
+    setIsUserLoading,
     platforms,
     setPlatforms,
     setLoading,
@@ -62,12 +48,9 @@ export const AppProvider = ({ children }) => {
     setMyLinks,
     setMyLinksLoading,
     logout,
-    user,
-    setUser,
     isUserLoading,
-    setIsUserLoading,
-    isLogin,
-    setIsLogin,
+    isRefetch,
+    setIsRefetch,
   };
   return (
     <AppContext.Provider value={contextData}>{children}</AppContext.Provider>

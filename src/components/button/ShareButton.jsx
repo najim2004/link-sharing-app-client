@@ -4,15 +4,15 @@ import { FaCheck } from "react-icons/fa";
 import { BsFacebook, BsTwitter, BsLinkedin, BsWhatsapp } from "react-icons/bs";
 import { MdClose } from "react-icons/md";
 import { useAppContext } from "../../provider/AppProvider";
-import { useLocation } from "react-router-dom";
 
 const ShareButton = () => {
   const [sharedSuccessfully, setSharedSuccessfully] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const { user } = useAppContext();
-  const location = useLocation();
-  const isVercel = location.pathname.includes("vercel.app");
-  const isFirebase = location.pathname.includes("web.app");
+  const { user = null } = useAppContext();
+
+  const isVercel = window.location.href.includes("vercel.app");
+  const isFirebase = window.location.href.includes("web.app");
+
   const urlToShare = user?._id
     ? isFirebase
       ? `http://devlinks24.web.app/profile/${user._id}`

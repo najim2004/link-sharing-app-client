@@ -79,8 +79,8 @@ export const Home = () => {
   };
 
   return (
-    <div className="bg-white py-4 px-6 rounded-lg">
-      <div className="max-h-full overflow-auto">
+    <div className="bg-white py-4 pl-6 rounded-lg overflow-hidden relative">
+      <div className="max-h-full overflow-auto pr-6">
         <section className="mt-3.5">
           <h2 className="text-3xl font-bold text-secondary mb-3.5">
             Customize your links

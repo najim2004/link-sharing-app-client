@@ -35,7 +35,6 @@ const useImageUpload = () => {
       const uploadedUrl = response.data.data.url;
       setImageUrl(uploadedUrl);
       setIsSuccess(true);
-      console.log("Image successfully uploaded:", uploadedUrl);
     } catch (error) {
       console.error("Error uploading the image:", error);
       setUploadError("Image upload failed. Please try again.");

@@ -1,17 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DetailsUpdateForm } from "../../components/profile/DetailsUpdateForm";
 import { ProfilePicture } from "../../components/profile/ProfilePicture";
 import { useAppContext } from "../../provider/AppProvider";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import useImageUpload from "../../hooks/useImageUpload";
 
 export const Profile = () => {
-  const { user } = useAppContext();
+  const { user, setUser } = useAppContext();
   const [isEdit, setIsEdit] = useState(false);
   const axiosSecure = useAxiosSecure();
-  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
+  const {
+    uploadImage,
+    imageUrl,
+    uploadError,
+    isLoading: isUploading,
+    isSuccess,
+  } = useImageUpload();
 
   const { mutateAsync } = useMutation({
     mutationFn: async (data) => {
@@ -21,7 +28,7 @@ export const Profile = () => {
     onSuccess: (data) => {
       if (data.success) {
         toast.success("Profile updated successfully!");
-        queryClient.invalidateQueries(["user"]);
+        setUser(data.user);
         setIsEdit(false);
         setIsLoading(false);
       } else {
@@ -35,6 +42,19 @@ export const Profile = () => {
       toast.error(error.message || "Failed to update profile.");
     },
   });
+  useEffect(() => {
+    if (isSuccess) {
+      mutateAsync({ profilePicture: imageUrl });
+    }
+    if (isUploading) {
+      setIsLoading(isUploading);
+    }
+  }, [isSuccess, mutateAsync, imageUrl, isUploading]);
+
+  const profilePictureUpdater = (e) => {
+    const file = e.target.files[0];
+    uploadImage(file);
+  };
   const handleUpdate = (data) => {
     setIsLoading(true);
     mutateAsync(data);
@@ -45,11 +65,19 @@ export const Profile = () => {
         <h2 className="text-3xl font-bold text-secondary mb-3.5">
           Profile Details
         </h2>
-        <p className=" text-secondary">
-          Add your detail to create a personal touch to your profile.
-        </p>
+        {uploadError ? (
+          <p className="text-red-500">{uploadError}</p>
+        ) : (
+          <p className="text-secondary">
+            Add your detail to create a personal touch to your profile.
+          </p>
+        )}
       </section>
-      <ProfilePicture profilePictureUrl={user.profilePicture} />
+      <ProfilePicture
+        profilePictureUrl={user.profilePicture}
+        profilePictureUpdater={profilePictureUpdater}
+        isUploading={isUploading}
+      />
       <DetailsUpdateForm
         userDetails={user}
         isEdit={isEdit}

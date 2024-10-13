@@ -1,48 +1,49 @@
 import axios from "axios";
 import { useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAppContext } from "../provider/AppProvider";
 
 const useAxiosSecure = () => {
-  //   const navigate = useNavigate();
+  const { setUser, setIsUserLoading } = useAppContext();
 
-  // Memoizing the axios instance to prevent unnecessary re-creations on each render
   const axiosSecureInstance = useMemo(
     () =>
       axios.create({
         baseURL: import.meta.env.VITE_BASEURL,
-        withCredentials: true, // Send cookies with requests
+        withCredentials: true,
       }),
     []
   );
 
-  //   useEffect(() => {
-  //     const responseInterceptor = (response) => response;
+  useEffect(() => {
+    const interceptor = axiosSecureInstance.interceptors.response.use(
+      (res) => {
+        return res;
+      },
+      async (error) => {
+        console.log("error tracked in the interceptors", error.response.status);
+        if (error.response.status === 401 || error.response.status === 403) {
+          setIsUserLoading(true);
+          try {
+            const { data } = await axiosSecureInstance.post(
+              "/api/users/logout"
+            );
+            if (data?.success) {
+              setUser(null);
+            }
+          } catch (err) {
+            console.error(err);
+          } finally {
+            setIsUserLoading(false);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
 
-  //     const errorInterceptor = (error) => {
-  //       const { response } = error;
-
-  //       // Checking if the error response is 401 (Unauthorized) or 403 (Forbidden)
-  //       if (response?.status === 401 || response?.status === 403) {
-  //         console.error("Authorization error detected:", response.statusText);
-
-  //         // Log the user out and navigate to login page
-
-  //       }
-
-  //       return Promise.reject(error); // Reject the error to handle it further
-  //     };
-
-  //     // Adding interceptors
-  //     const interceptorId = axiosSecureInstance.interceptors.response.use(
-  //       responseInterceptor,
-  //       errorInterceptor
-  //     );
-
-  //     // Cleanup the interceptor when component unmounts or dependencies change
-  //     return () => {
-  //       axiosSecureInstance.interceptors.response.eject(interceptorId);
-  //     };
-  //   }, [navigate, axiosSecureInstance]);
+    return () => {
+      axiosSecureInstance.interceptors.response.eject(interceptor);
+    };
+  }, [axiosSecureInstance, setUser, setIsUserLoading]);
 
   return axiosSecureInstance;
 };

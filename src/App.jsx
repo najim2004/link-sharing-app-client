@@ -6,6 +6,7 @@ import { useAppContext } from "./provider/AppProvider";
 import useAxiosPublic from "./hooks/useAxiosPublic";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+import useAxiosSecure from "./hooks/useAxiosSecure";
 
 const FetchPlatforms = () => {
   const axiosPublic = useAxiosPublic();
@@ -16,20 +17,22 @@ const FetchPlatforms = () => {
       return response.data?.platforms;
     },
     initialData: [],
-    refetchInterval: 60 * 60 * 1000,
+    refetchInterval: 600 * 1000,
   });
   return { data, isLoading, isError, error };
 };
 
 const FetchMyLinks = (id) => {
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["myLinks", id],
     enabled: !!id,
     queryFn: async () => {
-      const response = await axiosPublic.get(`/api/links/${id}`);
+      const response = await axiosSecure.get(`/api/links/${id}`);
       return response.data?.links;
     },
+    initialData: [],
+    refetchInterval: 600 * 1000,
   });
   return { myLinks: data, isLoading, isError, error, refetch };
 };
