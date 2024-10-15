@@ -1,7 +1,3 @@
-### GitHub README for DevLinks24 Frontend
-
----
-
 # DevLinks24 Frontend
 
 This repository contains the frontend code for **DevLinks24**, a link-sharing platform where users can manage and share their online presence in one place. Built with React.js, Tailwind CSS, and other modern technologies, the frontend provides a seamless user experience for managing and sharing links.
@@ -9,6 +5,10 @@ This repository contains the frontend code for **DevLinks24**, a link-sharing pl
 ## 🚀 Live Project
 
 Check out the live version of DevLinks24 here: [DevLinks24](https://devlinks24.web.app)
+
+## 🗂️ Related Repository
+
+- **Backend Repository**: [DevLinks24 Backend](https://github.com/najim2004/link-sharing-app-server)
 
 ## 🛠️ Technologies Used
 
@@ -64,7 +64,7 @@ Follow these instructions to set up the project locally.
 Create a `.env` file in the root directory and configure the following environment variables:
 
 - `VITE_BASEURL`: The base URL for the backend API.
-- `VITE_IMGBB_API_KEY`: The base URL for the backend API.
+- `VITE_IMGBB_API_KEY`: Your ImgBB API key for image uploads.
 
 ## 🤝 Contributing
 
