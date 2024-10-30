@@ -108,7 +108,9 @@ const SignUp = () => {
         </div>
 
         <button
-          onClick={() => alert("Coming soon...")}
+          onClick={() =>
+            alert("adding soon..!Please register with your information")
+          }
           className="mt-3 shadow-sm bg-transparent outline-none border border-gray-300 text-gray-500 text-base font-semibold rounded-md w-full max-w-[350px] p-2 flex items-center gap-2 justify-center"
         >
           <FcGoogle className="text-lg" /> Sign up with Google

@@ -78,7 +78,9 @@ const SignIn = () => {
         </div>
 
         <button
-          onClick={() => alert("adding soon..")}
+          onClick={() =>
+            alert("adding soon..!Please login with email and password")
+          }
           className="mt-3 shadow-sm bg-transparent outline-none border border-gray-300 text-gray-500 text-base font-semibold rounded-md w-full max-w-[350px] p-2 flex items-center gap-2 justify-center"
         >
           <FcGoogle className="text-lg" /> Login with Google
