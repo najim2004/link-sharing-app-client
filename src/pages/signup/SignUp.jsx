@@ -1,24 +1,21 @@
 import { FaRegEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { Navbar } from "../../shared/Navbar";
 import toast, { Toaster } from "react-hot-toast";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
-import { useMutation } from "@tanstack/react-query";
 import { Loading } from "../../components/Loading";
 import { useAppContext } from "../../provider/AppProvider";
 import useImageUpload from "../../hooks/useImageUpload";
 import { Helmet } from "react-helmet-async";
+import { useRegisterMutation } from "../../redux/api/usersApiSlice";
 
 const SignUp = () => {
   const { user, isUserLoading } = useAppContext();
-  const axiosPublic = useAxiosPublic();
   const [viewPassword, setViewPassword] = useState(false);
   const [anyError, setAnyError] = useState(null);
   const [fileName, setFileName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigator = useNavigate();
   const {
     uploadImage,
@@ -27,9 +24,6 @@ const SignUp = () => {
     isLoading: isUploading,
     isSuccess,
   } = useImageUpload();
-  useEffect(() => {
-    setIsLoading(isUploading);
-  }, [isUploading]);
 
   const {
     register,
@@ -37,34 +31,12 @@ const SignUp = () => {
     formState: { errors },
   } = useForm();
 
-  const mutation = useMutation({
-    mutationFn: async (data) => {
-      const { data: res } = await axiosPublic.post(`/api/users/register`, data);
-      return res;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success("Registration successful!");
-        setAnyError(null);
-        navigator("/login");
-      } else {
-        toast.error(data.message || "Failed to register, try again!");
-        setAnyError(data.message);
-      }
-      setIsLoading(true);
-    },
-    onError: (error) => {
-      console.log(error);
-      toast.error(error.message || "Failed to register, try again!");
-      setIsLoading(true);
-    },
-  });
+  const [createUser, { isLoading }] = useRegisterMutation();
 
   if (isUserLoading) return <Loading />;
   if (user) return <Navigate to={"/"} />;
 
   const onSubmit = async (data) => {
-    setIsLoading(true);
     const mutatedData = {
       firstName: data.firstName,
       lastName: data.lastName,
@@ -72,7 +44,23 @@ const SignUp = () => {
       password: data.password,
       profilePicture: imageUrl,
     };
-    mutation.mutateAsync(mutatedData);
+    try {
+      const { data, error } = await createUser(mutatedData);
+      if (data.success) {
+        toast.success("Registration successful!");
+        setAnyError(null);
+        navigator("/login");
+      } else {
+        toast.error(
+          data.message || error.message || "Failed to register, try again!"
+        );
+        setAnyError(data.message || error.message);
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      toast.error(error.message || "Failed to register, try again!");
+      setAnyError(error.message);
+    }
   };
 
   const togglePasswordView = () => {
@@ -234,7 +222,7 @@ const SignUp = () => {
                 className="mb-1 text-base font-semibold text-secondary w-full p-2 border-2 border-dashed flex justify-center items-center rounded-md"
                 htmlFor="file_input"
               >
-                {isLoading
+                {isLoading || isUploading
                   ? "Uploading..."
                   : isSuccess
                   ? fileName || "Change Your Photo" // Show file name if available

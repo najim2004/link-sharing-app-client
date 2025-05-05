@@ -1,9 +1,11 @@
 import { Helmet } from "react-helmet-async";
 import { Template } from "../../components/preview/Template";
-import { useAppContext } from "../../provider/AppProvider";
+import { useGetUserLinksQuery } from "../../redux/api/linksApiSlice";
+import { useSelector } from "react-redux";
 
 export const Preview = () => {
-  const { myLinks, user } = useAppContext();
+  const { data: myLinks } = useGetUserLinksQuery();
+  const { user } = useSelector((state) => state.user);
   return (
     <div className="">
       <Helmet>

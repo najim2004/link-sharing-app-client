@@ -1,14 +1,14 @@
 import PropTypes from "prop-types";
-import { useAppContext } from "../provider/AppProvider";
 import { Loading } from "../components/Loading";
 import { Navigate, useLocation } from "react-router-dom";
 import { PublicPreview } from "../pages/publicpreview/PublicPreview";
+import { useSelector } from "react-redux";
 
 export const PrivateRoute = ({ children }) => {
-  const { user, isUserLoading } = useAppContext();
+  const { user, isLoading } = useSelector((state) => state.user);
   const location = useLocation();
   const isProfileRoute = location.pathname.includes("/profile");
-  if (isUserLoading) {
+  if (isLoading) {
     return <Loading />;
   }
   if (isProfileRoute && !user) return <PublicPreview />;

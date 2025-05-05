@@ -2,11 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Template } from "../../components/preview/Template";
 import { useParams } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Loading } from "../../components/Loading";
-import { useAppContext } from "../../provider/AppProvider";
 import toast from "react-hot-toast";
 import { Helmet } from "react-helmet-async";
+import { useGetLinkByIdQuery } from "../../redux/api/linksApiSlice";
+import { useSelector } from "react-redux";
 
 export const FetchUserDetailsAndLinks = (id) => {
   const axiosPublic = useAxiosPublic();
@@ -28,35 +29,21 @@ export const FetchUserDetailsAndLinks = (id) => {
 };
 
 export const PublicPreview = () => {
-  const { user: AuthUser } = useAppContext();
   const { id } = useParams();
-  const [user, setUser] = useState();
-  const [userLinks, setUserLinks] = useState();
-  const [loading, setLoading] = useState(true);
-  const userDetailsWithLinks = FetchUserDetailsAndLinks(id);
+  const { user } = useSelector((state) => state.user);
+  const { data, isLoading, isError, error } = useGetLinkByIdQuery(id, {
+    skip: user,
+  });
 
   useEffect(() => {
-    if (!AuthUser) {
-      try {
-        if (userDetailsWithLinks?.userData?.success) {
-          setUser(userDetailsWithLinks?.userData?.user);
-          setUserLinks(userDetailsWithLinks?.userData?.links);
-        }
-
-        setLoading(userDetailsWithLinks?.isLoading);
-
-        if (userDetailsWithLinks?.error)
-          toast.error("Something went wrong! Please try again later.");
-      } catch (error) {
-        console.log(error);
-      }
+    if (!user) {
+      if (isError)
+        toast.error(
+          error.message || "Something went wrong! Please try again later."
+        );
     }
-  }, [setUserLinks, setUser, setLoading, userDetailsWithLinks, AuthUser]);
-  if (AuthUser) {
-    setUser(null);
-    return null;
-  }
-  if (loading) return <Loading />;
+  }, [error, isError, user]);
+  if (isLoading) return <Loading />;
   return (
     <>
       <Helmet>
@@ -64,7 +51,7 @@ export const PublicPreview = () => {
           user?.firstName + " " + user?.lastName
         } || Dev Links 24`}</title>
       </Helmet>
-      <Template myLinks={userLinks} user={user} />
+      <Template myLinks={data?.userData?.links} user={data?.userData?.user} />
     </>
   );
 };

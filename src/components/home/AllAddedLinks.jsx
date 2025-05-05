@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAppContext } from "../../provider/AppProvider";
 import DeleteModal from "./deleteModal";
 import { SingleLink } from "./SingleLink";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,9 +8,14 @@ import { MdModeEdit } from "react-icons/md";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import { FaSpinner } from "react-icons/fa";
+import {
+  useDeleteUserLinkMutation,
+  useGetUserLinksQuery,
+} from "../../redux/api/linksApiSlice";
 
 export const AllAddedLinks = () => {
-  const { myLinks, myLinksLoading } = useAppContext();
+  const { data: myLinks, isLoading: myLinksLoading } = useGetUserLinksQuery();
+  const [onDelete, { isLoading: isDeleting }] = useDeleteUserLinkMutation();
   const [isEdit, setIsEdit] = useState(false);
   const [updatableData, setUpdatableData] = useState([]);
   const [updateFailedIds, setUpdateFailedIds] = useState([]);
@@ -26,28 +30,6 @@ export const AllAddedLinks = () => {
     setIsModalOpen(true);
   };
 
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      const { data: res } = await axiosSecure.delete(`/api/links/${linkId}`);
-      return res;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success("Link removed successfully!");
-        queryClient.refetchQueries(["myLinks"]);
-        setIsModalOpen(false);
-        setLinkId(null);
-      } else {
-        toast.error(data.message || "Failed to remove link.");
-      }
-      setIsLoading(false);
-    },
-    onError: (error) => {
-      console.log(error);
-      toast.error(error.message || "Failed to remove link.");
-      setIsLoading(false);
-    },
-  });
   const updateMutation = useMutation({
     mutationFn: async () => {
       const { data: res } = await axiosSecure.patch(
@@ -109,6 +91,21 @@ export const AllAddedLinks = () => {
     setIsLoading(true);
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const { data, error } = await onDelete(id);
+      if (data.success) {
+        toast.success("Link removed successfully!");
+        setIsModalOpen(false);
+      } else {
+        toast.error(data.message || error.message || "Failed to remove link.");
+      }
+    } catch (error) {
+      console.error("Error during deletion:", error);
+      toast.error(error.message || "Failed to remove link.");
+    }
+  };
+
   return (
     <section className={`mt-8 flex flex-col gap-5 ${isEdit ? "mb-16" : ""}`}>
       {!isEdit && myLinks.length > 0 && (
@@ -154,10 +151,9 @@ export const AllAddedLinks = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={() => {
-          deleteMutation.mutate();
-          setIsLoading(true);
+          handleDelete(linkId);
         }}
-        isLoading={isLoading}
+        isLoading={isDeleting}
       />
       <div
         className={`transition-all ${

@@ -4,57 +4,48 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { Navbar } from "../../shared/Navbar";
-import { useMutation } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { useAppContext } from "../../provider/AppProvider";
 import { Loading } from "../../components/Loading";
 import { Helmet } from "react-helmet-async";
+import { useLoginMutation } from "../../redux/api/usersApiSlice";
+import { useSelector } from "react-redux";
 
 const SignIn = () => {
-  const { isRefetch, setIsRefetch, user, isUserLoading } = useAppContext();
+  const { user, isLoading: isUserLoading } = useSelector((state) => state.user);
   const [viewPassword, setViewPassword] = useState(false);
-  const axiosSecure = useAxiosSecure();
   const [anyError, setAnyError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const mutation = useMutation({
-    mutationFn: async (data) => {
-      const { data: res } = await axiosSecure.post(`/api/users/login`, data);
-      return res;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success("Loged In successful!");
-        setIsRefetch(!isRefetch);
-        setAnyError(null);
-      } else {
-        toast.error(data.message || "Failed to login try again!");
-        setAnyError(data.message);
-      }
-      setIsLoading(false);
-    },
-    onError: (error) => {
-      console.log(error);
-      toast.error(error.message || "Failed to login try again!");
-      setIsLoading(false);
-    },
-  });
+  const [login, { isLoading }] = useLoginMutation();
+
   if (isUserLoading) return <Loading />;
   if (user) return <Navigate to={"/"} />;
 
   const onSubmit = async (data) => {
-    setIsLoading(true);
     const mutatedData = {
       email: data.email,
       password: data.password,
     };
-    mutation.mutateAsync(mutatedData);
+    try {
+      const { data, error } = await login(mutatedData);
+      if (data.success) {
+        toast.success("Login successful!");
+        setAnyError(null);
+      } else {
+        toast.error(
+          data.message || error.message || "Failed to login, try again!"
+        );
+        setAnyError(data.message || error.message);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      toast.error(error.message || "Failed to login, try again!");
+      setAnyError(error.message);
+    }
   };
 
   const togglePasswordView = () => {
@@ -168,7 +159,7 @@ const SignIn = () => {
             </button>
           </form>
           <p className="text-sm text-gray-500 mt-2 text-center">
-            Don't have an account?{" "}
+            Don&#39;t have an account?{" "}
             <Link to={"/signup"} className="hover:underline font-semibold">
               Sign up
             </Link>

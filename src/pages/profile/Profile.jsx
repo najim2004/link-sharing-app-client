@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
 import { DetailsUpdateForm } from "../../components/profile/DetailsUpdateForm";
 import { ProfilePicture } from "../../components/profile/ProfilePicture";
-import { useAppContext } from "../../provider/AppProvider";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import useImageUpload from "../../hooks/useImageUpload";
 import { Helmet } from "react-helmet-async";
+import { useSelector } from "react-redux";
+import { useUpdateUserMutation } from "../../redux/api/usersApiSlice";
 
 export const Profile = () => {
-  const { user, setUser } = useAppContext();
   const [isEdit, setIsEdit] = useState(false);
-  const axiosSecure = useAxiosSecure();
-  const [isLoading, setIsLoading] = useState(false);
   const {
     uploadImage,
     imageUrl,
@@ -20,45 +16,33 @@ export const Profile = () => {
     isLoading: isUploading,
     isSuccess,
   } = useImageUpload();
-
-  const { mutateAsync } = useMutation({
-    mutationFn: async (data) => {
-      const { data: res } = await axiosSecure.patch(`/api/users`, data);
-      return res;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success("Profile updated successfully!");
-        setUser(data.user);
-        setIsEdit(false);
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-        toast.error(data.message || "Failed to update profile.");
-      }
-    },
-    onError: (error) => {
-      setIsLoading(false);
-      console.log(error);
-      toast.error(error.message || "Failed to update profile.");
-    },
-  });
+  const { user } = useSelector((state) => state.user);
+  const [updateProfile, { isLoading }] = useUpdateUserMutation();
   useEffect(() => {
-    if (isSuccess) {
-      mutateAsync({ profilePicture: imageUrl });
+    if (isSuccess && !isUploading) {
+      updateProfile({ profilePicture: imageUrl });
     }
-    if (isUploading) {
-      setIsLoading(isUploading);
-    }
-  }, [isSuccess, mutateAsync, imageUrl, isUploading]);
+  }, [isSuccess, updateProfile, imageUrl, isUploading]);
 
   const profilePictureUpdater = (e) => {
     const file = e.target.files[0];
     uploadImage(file);
   };
-  const handleUpdate = (data) => {
-    setIsLoading(true);
-    mutateAsync(data);
+  const handleUpdate = async (data) => {
+    try {
+      const { data: res, error } = await updateProfile(data);
+      if (res.success) {
+        toast.success("Profile updated successfully!");
+        setIsEdit(false);
+      } else {
+        toast.error(
+          res.message || error.message || "Failed to update profile."
+        );
+      }
+    } catch (error) {
+      console.error("Error during profile update:", error);
+      toast.error(error.message || "Failed to update profile.");
+    }
   };
   return (
     <div className="bg-white py-4 px-6 rounded-lg">
