@@ -1,15 +1,17 @@
 import { FiLink } from "react-icons/fi";
 import { IoEyeOutline } from "react-icons/io5";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { useAppContext } from "../provider/AppProvider";
 import { IoMdLogIn, IoMdLogOut } from "react-icons/io";
 import { LiaUserEditSolid, LiaUserSolid } from "react-icons/lia";
 import { MdOutlineArrowBackIosNew } from "react-icons/md";
-import { BsFillShareFill } from "react-icons/bs";
 import ShareButton from "../components/button/ShareButton";
+import { useSelector } from "react-redux";
+import { useLogoutMutation } from "../redux/api/usersApiSlice";
 
 export const Navbar = () => {
-  const { user, isUserLoading, logout } = useAppContext();
+  // const { user, isUserLoading, logout } = useAppContext();
+  const { user } = useSelector((state) => state.user);
+  const [logout] = useLogoutMutation();
   const location = useLocation();
   const isPreview = location.pathname.includes("/preview");
   const isProfile = location.pathname.includes("/profile");

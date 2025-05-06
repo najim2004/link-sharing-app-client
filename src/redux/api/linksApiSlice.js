@@ -3,8 +3,10 @@ import { apiSlice } from "./apiSlice";
 export const linksApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getUserLinks: builder.query({
-      query: () => `/api/links`,
+      query: () => `/links`,
       transformResponse: (response) => response.links,
+      // Add keepUnusedDataFor option to keep cache longer
+      keepUnusedDataFor: 300, // Keep data for 5 minutes
       providesTags: (result) =>
         result
           ? [
@@ -15,13 +17,15 @@ export const linksApiSlice = apiSlice.injectEndpoints({
     }),
 
     getLinkById: builder.query({
-      query: (linkId) => `/api/links/link/${linkId}`,
-      providesTags: (result, error, linkId) => [{ type: "Links", id: linkId }],
+      query: (userId) => ({
+        url: `/users/${userId}`,
+        method: "GET",
+      }),
     }),
 
     addUserLink: builder.mutation({
       query: (linkData) => ({
-        url: "/api/links",
+        url: "/links",
         method: "POST",
         body: linkData,
       }),
@@ -85,52 +89,71 @@ export const linksApiSlice = apiSlice.injectEndpoints({
     }),
 
     updateUserLink: builder.mutation({
-      query: ({ linkId, ...linkData }) => ({
-        url: `/api/links/${linkId}`,
-        method: "PUT",
-        body: linkData,
+      query: (links) => ({
+        url: `/links`,
+        method: "PATCH",
+        body: links,
       }),
-      // Optimistic update
-      async onQueryStarted(
-        { linkId, userId, ...update },
-        { dispatch, queryFulfilled }
-      ) {
-        // Update the link in getUserLinks cache optimistically
-        const patchListResult = dispatch(
-          linksApiSlice.util.updateQueryData(
-            "getUserLinks",
-            userId,
-            (draft) => {
-              const link = draft.find((item) => item._id === linkId);
-              if (link) {
-                Object.assign(link, update);
-              }
-            }
-          )
-        );
+      async onQueryStarted(links, { dispatch, queryFulfilled }) {
+        // Store original links for rollback
+        const originalLinks = {};
 
-        // Also update the link in single link cache if it exists
-        const patchDetailResult = dispatch(
-          linksApiSlice.util.updateQueryData("getLinkById", linkId, (draft) => {
-            Object.assign(draft, update);
-          })
-        );
+        // Create optimistic updates for each link
+        const patchResults = links.map((link) => {
+          return dispatch(
+            linksApiSlice.util.updateQueryData(
+              "getUserLinks",
+              undefined,
+              (draft) => {
+                const existingLink = draft.find(
+                  (item) => item._id === link._id
+                );
+                if (existingLink) {
+                  originalLinks[link._id] = { ...existingLink };
+                  Object.assign(existingLink, link);
+                }
+              }
+            )
+          );
+        });
 
         try {
-          // Wait for the actual API response
-          await queryFulfilled;
-          // Success - the cache is already updated optimistically
+          const { data } = await queryFulfilled;
+
+          // Update successful - update cache with server response
+          if (data?.failedIds?.length) {
+            // Revert updates for failed IDs only
+            data.failedIds.forEach((failedId) => {
+              if (originalLinks[failedId]) {
+                dispatch(
+                  linksApiSlice.util.updateQueryData(
+                    "getUserLinks",
+                    undefined,
+                    (draft) => {
+                      const linkToRevert = draft.find(
+                        (item) => item._id === failedId
+                      );
+                      if (linkToRevert) {
+                        Object.assign(linkToRevert, originalLinks[failedId]);
+                      }
+                    }
+                  )
+                );
+              }
+            });
+          }
         } catch {
-          // If request fails, revert both optimistic updates
-          patchListResult.undo();
-          patchDetailResult.undo();
+          // Revert all optimistic updates on error
+          patchResults.forEach((patchResult) => patchResult.undo());
         }
       },
+      invalidatesTags: (result) =>
+        result?.success ? [{ type: "Links", id: "LIST" }] : [],
     }),
 
     deleteUserLink: builder.mutation({
-      query: ({ linkId }) => ({
-        url: `/api/links/${linkId}`,
+      query: (linkId) => ({
+        url: `/links/${linkId}`,
         method: "DELETE",
       }),
       // Optimistic update
@@ -183,6 +206,14 @@ export const linksApiSlice = apiSlice.injectEndpoints({
     }),
   }),
 });
+
+// Add refetchOnMount and refetchOnReconnect options when using the hook
+export const useOptimizedUserLinksQuery = () => {
+  return useGetUserLinksQuery(undefined, {
+    refetchOnMountOrArgChange: false, // Don't refetch on component mount
+    refetchOnReconnect: false, // Don't refetch on reconnection
+  });
+};
 
 export const {
   useGetUserLinksQuery,

@@ -1,5 +1,10 @@
 import { apiSlice } from "./apiSlice";
-import { setUser } from "../slices/userSlice";
+import {
+  logout,
+  setError,
+  setLoading,
+  setUser,
+} from "../features/user/userSlice";
 
 export const usersApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -29,6 +34,15 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         url: "/users/logout",
         method: "POST",
       }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Clear user data from Redux state
+          dispatch(logout());
+        } catch (err) {
+          console.error("Failed to logout:", err);
+        }
+      },
     }),
 
     // Refresh token
@@ -41,15 +55,24 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 
     // Get user data
     getUserData: builder.query({
-      query: () => "/users/me",
+      query: () => "/users",
       providesTags: ["Users"],
       invalidatesTags: ["Links"],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
+          dispatch(setLoading());
           const { data } = await queryFulfilled;
-          dispatch(setUser(data));
+          if (data?.success) {
+            dispatch(setUser(data?.user));
+          } else {
+            throw new Error(data.message || "Failed to fetch user data");
+          }
         } catch (err) {
           console.error("Failed to fetch user data:", err);
+          dispatch(setError(err?.message || "Failed to fetch user data"));
+          dispatch(logout());
+        } finally {
+          dispatch(setLoading(false));
         }
       },
     }),
@@ -97,7 +120,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
           dispatch(setUser(currentUser));
         }
       },
-      invalidatesTags: ["Users"],
+      // invalidatesTags: ["Users"],
     }),
   }),
 });

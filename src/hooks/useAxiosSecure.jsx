@@ -1,9 +1,12 @@
 import axios from "axios";
 import { useEffect, useMemo } from "react";
-import { useAppContext } from "../provider/AppProvider";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { setLoading } from "../redux/features/user/userSlice";
 
 const useAxiosSecure = () => {
-  const { setUser, setIsUserLoading } = useAppContext();
+  const { setUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
 
   const axiosSecureInstance = useMemo(
     () =>
@@ -22,7 +25,7 @@ const useAxiosSecure = () => {
       async (error) => {
         console.log("error tracked in the interceptors", error.response.status);
         if (error.response.status === 401 || error.response.status === 403) {
-          setIsUserLoading(true);
+          dispatch(setLoading(true));
           try {
             const { data } = await axiosSecureInstance.post(
               "/api/users/logout"
@@ -33,7 +36,7 @@ const useAxiosSecure = () => {
           } catch (err) {
             console.error(err);
           } finally {
-            setIsUserLoading(false);
+            dispatch(setLoading(false));
           }
         }
         return Promise.reject(error);

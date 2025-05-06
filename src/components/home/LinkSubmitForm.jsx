@@ -2,11 +2,11 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MdKeyboardArrowDown } from "react-icons/md";
-import { useAppContext } from "../../provider/AppProvider";
 import { FaSpinner } from "react-icons/fa";
+import { useGetPlatformsQuery } from "../../redux/api/platformsApiSlice";
 
 const LinkSubmitForm = ({ isOpen, onClose, onSubmit, isLoading }) => {
-  const { platforms } = useAppContext();
+  const { data: platforms } = useGetPlatformsQuery();
   const [selectedPlatform, setSelectedPlatform] = useState();
   const {
     register,
@@ -48,13 +48,13 @@ const LinkSubmitForm = ({ isOpen, onClose, onSubmit, isLoading }) => {
                 <option className="text-sm font-semibold" value="Website">
                   Website
                 </option>
-                {platforms.map((platform) => (
+                {platforms?.map((platform) => (
                   <option
-                    key={platform._id}
-                    value={platform.name}
+                    key={platform?._id}
+                    value={platform?.name}
                     className="text-sm font-semibold"
                   >
-                    {platform.name}
+                    {platform?.name}
                   </option>
                 ))}
               </select>

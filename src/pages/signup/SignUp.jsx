@@ -6,13 +6,13 @@ import { FcGoogle } from "react-icons/fc";
 import { Navbar } from "../../shared/Navbar";
 import toast, { Toaster } from "react-hot-toast";
 import { Loading } from "../../components/Loading";
-import { useAppContext } from "../../provider/AppProvider";
 import useImageUpload from "../../hooks/useImageUpload";
 import { Helmet } from "react-helmet-async";
 import { useRegisterMutation } from "../../redux/api/usersApiSlice";
+import { useSelector } from "react-redux";
 
 const SignUp = () => {
-  const { user, isUserLoading } = useAppContext();
+  const { user, isLoading: isUserLoading } = useSelector((state) => state.user);
   const [viewPassword, setViewPassword] = useState(false);
   const [anyError, setAnyError] = useState(null);
   const [fileName, setFileName] = useState("");

@@ -1,5 +1,5 @@
 import { FaRegEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
@@ -21,6 +21,7 @@ const SignIn = () => {
   } = useForm();
 
   const [login, { isLoading }] = useLoginMutation();
+  const navigate = useNavigate();
 
   if (isUserLoading) return <Loading />;
   if (user) return <Navigate to={"/"} />;
@@ -35,6 +36,7 @@ const SignIn = () => {
       if (data.success) {
         toast.success("Login successful!");
         setAnyError(null);
+        navigate("/");
       } else {
         toast.error(
           data.message || error.message || "Failed to login, try again!"

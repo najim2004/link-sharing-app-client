@@ -3,12 +3,12 @@ import { BsFillShareFill } from "react-icons/bs";
 import { FaCheck } from "react-icons/fa";
 import { BsFacebook, BsTwitter, BsLinkedin, BsWhatsapp } from "react-icons/bs";
 import { MdClose } from "react-icons/md";
-import { useAppContext } from "../../provider/AppProvider";
+import { useSelector } from "react-redux";
 
 const ShareButton = () => {
   const [sharedSuccessfully, setSharedSuccessfully] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const { user = null } = useAppContext();
+  const { user = null } = useSelector((state) => state.user);
 
   const isVercel = window.location.href.includes("vercel.app");
   const isFirebase = window.location.href.includes("web.app");

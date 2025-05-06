@@ -26,9 +26,5 @@ export {
 } from './api/platformsApiSlice';
 
 export {
-  profilesApiSlice
-} from './api/profilesApiSlice';
-
-export {
   usersApiSlice
 } from './api/usersApiSlice';

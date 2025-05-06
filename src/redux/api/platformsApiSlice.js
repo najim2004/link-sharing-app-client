@@ -4,7 +4,7 @@ export const platformsApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // GET - Fetch all platforms
     getPlatforms: builder.query({
-      query: () => "/api/platforms",
+      query: () => "/platforms",
       transformResponse: (response) => response.platforms,
       providesTags: (result) =>
         result
@@ -17,14 +17,14 @@ export const platformsApiSlice = apiSlice.injectEndpoints({
 
     // GET - Fetch single platform by ID
     getPlatformById: builder.query({
-      query: (id) => `/api/platforms/${id}`,
+      query: (id) => `/platforms/${id}`,
       providesTags: (result, error, id) => [{ type: "Platforms", id }],
     }),
 
     // POST - Create a new platform with optimistic update
     createPlatform: builder.mutation({
       query: (platformData) => ({
-        url: "/api/platforms",
+        url: "/platforms",
         method: "POST",
         body: platformData,
       }),
@@ -88,7 +88,7 @@ export const platformsApiSlice = apiSlice.injectEndpoints({
     // PUT - Update an existing platform with optimistic update
     updatePlatform: builder.mutation({
       query: ({ id, ...data }) => ({
-        url: `/api/platforms/${id}`,
+        url: `/platforms/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -134,7 +134,7 @@ export const platformsApiSlice = apiSlice.injectEndpoints({
     // DELETE - Delete a platform with optimistic update
     deletePlatform: builder.mutation({
       query: (id) => ({
-        url: `/api/platforms/${id}`,
+        url: `/platforms/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: (result, error, id) => [{ type: "Platforms", id }],

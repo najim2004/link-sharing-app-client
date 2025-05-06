@@ -1,10 +1,10 @@
 import PropTypes from "prop-types";
-import { useAppContext } from "../../provider/AppProvider";
 import { Link } from "react-router-dom";
 import { FaSpinner } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
-export const Phone = ({ myLinks }) => {
-  const { user, myLinksLoading } = useAppContext();
+export const Phone = ({ myLinks,myLinksLoading }) => {
+  const { user } = useSelector((state) => state.user);
   return (
     <div className="h-[680px] w-[370px] border border-secondary/60 rounded-[50px] p-4 bg-white relative">
       <div className="h-full border border-secondary/60 rounded-[40px] w-full overflow-hidden">
@@ -62,4 +62,5 @@ export const Phone = ({ myLinks }) => {
 
 Phone.propTypes = {
   myLinks: PropTypes.array,
+  myLinksLoading: PropTypes.bool,
 };

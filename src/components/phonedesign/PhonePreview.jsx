@@ -11,7 +11,7 @@ export const PhonePreview = () => {
           <h4 className="text-center">Loading...</h4>
         </>
       ) : (
-        <Phone myLinks={myLinks} />
+        <Phone myLinks={myLinks} myLinksLoading={isLoading} />
       )}
     </section>
   );

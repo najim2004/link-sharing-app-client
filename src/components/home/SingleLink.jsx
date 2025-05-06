@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import { LuEqual } from "react-icons/lu";
 import { MdKeyboardArrowDown } from "react-icons/md";
-import { useAppContext } from "../../provider/AppProvider";
 import { useEffect, useState } from "react";
+import { useGetPlatformsQuery } from "../../redux/api/platformsApiSlice";
 
 export const SingleLink = ({
   link,
@@ -12,7 +12,7 @@ export const SingleLink = ({
   isLoading,
   failedMessage,
 }) => {
-  const { platforms } = useAppContext();
+  const { data: platforms } = useGetPlatformsQuery();
   const [updatedLink, setUpdatedLink] = useState(link);
   useEffect(() => {
     if (!isEdit) setUpdatedLink(link);
@@ -69,7 +69,7 @@ export const SingleLink = ({
       platform,
     }));
   };
-  const isNotFinded = platforms.find(
+  const isNotFinded = platforms?.find(
     (i) => i.name == updatedLink?.platform?.name
   )
     ? false

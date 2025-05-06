@@ -1,9 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import DeleteModal from "./deleteModal";
 import { SingleLink } from "./SingleLink";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { MdModeEdit } from "react-icons/md";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
@@ -11,123 +9,114 @@ import { FaSpinner } from "react-icons/fa";
 import {
   useDeleteUserLinkMutation,
   useGetUserLinksQuery,
+  useUpdateUserLinkMutation,
 } from "../../redux/api/linksApiSlice";
 
 export const AllAddedLinks = () => {
   const { data: myLinks, isLoading: myLinksLoading } = useGetUserLinksQuery();
-  const [onDelete, { isLoading: isDeleting }] = useDeleteUserLinkMutation();
+  const [onDelete] = useDeleteUserLinkMutation();
+  const [updateLinks] = useUpdateUserLinkMutation();
+
   const [isEdit, setIsEdit] = useState(false);
   const [updatableData, setUpdatableData] = useState([]);
   const [updateFailedIds, setUpdateFailedIds] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [linkId, setLinkId] = useState(null);
-  const queryClient = useQueryClient();
-  const axiosSecure = useAxiosSecure();
+  const [modalState, setModalState] = useState({ isOpen: false, linkId: null });
 
-  const openRemoveModal = (id) => {
-    setLinkId(id);
-    setIsModalOpen(true);
-  };
+  const openRemoveModal = useCallback((id) => {
+    setModalState({ isOpen: true, linkId: id });
+  }, []);
 
-  const updateMutation = useMutation({
-    mutationFn: async () => {
-      const { data: res } = await axiosSecure.patch(
-        `/api/links`,
-        updatableData
-      );
-      return res;
-    },
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success("Link updated successfully!");
-        queryClient.refetchQueries(["myLinks"]);
-        setUpdatableData([]);
-        setIsEdit(false);
-      } else {
-        toast.error(data.message || "Failed to update link.");
-        if (data?.failedIds?.length > 0) {
-          queryClient.refetchQueries(["myLinks"]);
-          setUpdatableData([]);
-          setUpdateFailedIds(data.failedIds);
-        }
-      }
-      setIsLoading(false);
-    },
-    onError: (error) => {
-      console.log(error);
-      toast.error(error.message || "Failed to update link.");
-      setIsLoading(false);
-    },
-  });
+  const updateDataSeter = useCallback((obj) => {
+    setUpdatableData((prev) => {
+      const existingIndex = prev.findIndex((link) => link._id === obj._id);
+      const newLink = { _id: obj._id, url: obj.url, platform: obj.platform };
 
-  const updateDataSeter = (obj) => {
-    let found = 0;
-    const updatedLinks = updatableData.map((link) => {
-      if (link._id == obj._id) {
-        found++;
-        return { _id: obj._id, url: obj.url, platform: obj.platform };
+      if (existingIndex === -1) {
+        return [...prev, newLink];
       }
 
-      return link;
+      const updated = [...prev];
+      updated[existingIndex] = newLink;
+      return updated;
     });
-    found == 0
-      ? setUpdatableData([
-          ...updatedLinks,
-          { _id: obj._id, url: obj.url, platform: obj.platform },
-        ])
-      : setUpdatableData(updatedLinks);
-  };
+  }, []);
 
-  const handleUpdateCancel = () => {
+  const handleUpdateCancel = useCallback(() => {
     setUpdatableData([]);
     setIsEdit(false);
     setUpdateFailedIds([]);
-  };
+  }, []);
 
-  const onUpdateConfirmed = () => {
-    if (updatableData.length === 0) return toast.error("No changes were made");
-    updateMutation.mutate();
+  const onUpdateConfirmed = async () => {
+    if (updatableData.length === 0) {
+      return toast.error("No changes were made");
+    }
+
     setIsLoading(true);
-  };
-
-  const handleDelete = async (id) => {
     try {
-      const { data, error } = await onDelete(id);
-      if (data.success) {
-        toast.success("Link removed successfully!");
-        setIsModalOpen(false);
+      const result = await updateLinks(updatableData).unwrap();
+      if (result.success) {
+        toast.success("Links updated successfully!");
+        handleUpdateCancel();
       } else {
-        toast.error(data.message || error.message || "Failed to remove link.");
+        toast.error(result.message || "Failed to update links");
+        if (result?.failedIds?.length > 0) {
+          setUpdateFailedIds(result.failedIds);
+        }
       }
     } catch (error) {
-      console.error("Error during deletion:", error);
-      toast.error(error.message || "Failed to remove link.");
+      console.error(error);
+      toast.error("Failed to update links");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      const result = await onDelete(modalState.linkId).unwrap();
+      if (result.success) {
+        toast.success("Link removed successfully!");
+        setModalState({ isOpen: false, linkId: null });
+      } else {
+        toast.error(result.message || "Failed to remove link");
+      }
+    } catch (error) {
+      console.error("Error during deletion:", error);
+      toast.error("Failed to remove link");
+    }
+  };
+
+  const renderLoading = () => (
+    <div className="w-full flex items-center justify-center text-primary">
+      <FaSpinner className="animate-spin text-2xl" />
+    </div>
+  );
+
+  const renderEmpty = () => (
+    <div className="w-full flex justify-center items-center my-40">
+      <h3 className="text-2xl font-semibold text-red-500 text-center leading-[40px]">
+        Empty!
+      </h3>
+    </div>
+  );
+
   return (
     <section className={`mt-8 flex flex-col gap-5 ${isEdit ? "mb-16" : ""}`}>
-      {!isEdit && myLinks.length > 0 && (
+      {!isEdit && myLinks?.length > 0 && (
         <button
-          onClick={() => {
-            setIsEdit(true);
-          }}
-          className="flex items-center gap-2 py-2 lg:py-2.5
-         px-3 lg:px-6 rounded-lg border border-primary text-primary w-max ml-auto mr-1"
+          onClick={() => setIsEdit(true)}
+          className="flex items-center gap-2 py-2 lg:py-2.5 px-3 lg:px-6 rounded-lg border border-primary text-primary w-max ml-auto mr-1"
         >
           <MdModeEdit /> <span className="hidden lg:flex">Edit</span>
         </button>
       )}
 
-      {myLinksLoading && (
-        <div className="w-full flex items-center justify-center text-primary">
-          <FaSpinner className="animate-spin text-2xl" />
-        </div>
-      )}
+      {myLinksLoading && renderLoading()}
+
       {myLinks?.map((link) => (
         <SingleLink
-          className=""
           key={link._id}
           isEdit={isEdit}
           isLoading={isLoading}
@@ -135,26 +124,20 @@ export const AllAddedLinks = () => {
           openRemoveModal={openRemoveModal}
           updateDataSeter={updateDataSeter}
           failedMessage={
-            updateFailedIds.includes(link?._id) ? "Failed to update this!" : ""
+            updateFailedIds.includes(link._id) ? "Failed to update this!" : ""
           }
         />
       ))}
 
-      {myLinks.length <= 0 && (
-        <div className="w-full flex justify-center items-center my-40">
-          <h3 className="text-2xl font-semibold text-red-500 text-center leading-[40px]">
-            Empty!
-          </h3>
-        </div>
-      )}
+      {myLinks?.length <= 0 && renderEmpty()}
+
       <DeleteModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={() => {
-          handleDelete(linkId);
-        }}
-        isLoading={isDeleting}
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ isOpen: false, linkId: null })}
+        onConfirm={handleDelete}
+        isLoading={isLoading}
       />
+
       <div
         className={`transition-all ${
           isEdit ? "translate-y-0" : "translate-y-[100%]"
@@ -163,16 +146,14 @@ export const AllAddedLinks = () => {
         <button
           disabled={isLoading}
           onClick={handleUpdateCancel}
-          className="flex items-center gap-2 py-2 lg:py-2.5
-         px-3 lg:px-5 rounded-lg border border-primary text-primary w-max h-max"
+          className="flex items-center gap-2 py-2 lg:py-2.5 px-3 lg:px-5 rounded-lg border border-primary text-primary w-max h-max"
         >
           <ImCancelCircle /> <span className="hidden lg:flex">Cancel</span>
         </button>
         <button
           disabled={isLoading}
           onClick={onUpdateConfirmed}
-          className="flex items-center justify-center gap-2 py-2 lg:py-2.5
-         px-3 lg:px-5 rounded-lg border bg-primary text-white w-max h-max"
+          className="flex items-center justify-center gap-2 py-2 lg:py-2.5 px-3 lg:px-5 rounded-lg border bg-primary text-white w-max h-max"
         >
           {isLoading ? (
             <FaSpinner className="animate-spin text-2xl" />
